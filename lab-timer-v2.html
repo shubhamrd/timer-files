@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Time!!</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font family -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            /* Lighter, more corporate background */
+            display: flex;
+            flex-direction: column;
+            /* Allow note and footer to stack below main content */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        /* Custom styles for the progress bar animation */
+        .progress-bar {
+            transition: width 1s linear, background-color 0.5s ease;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="w-full max-w-2xl bg-white p-4 md:p-6 shadow-xl rounded-2xl border border-gray-200">
+
+        <h1 class="text-2xl font-extrabold text-gray-800 text-center mb-3 border-b pb-3">
+            Lab Time!!
+        </h1>
+
+        <!-- Setup Form (Initial State) -->
+        <div id="setup-section" class="space-y-6">
+            <h2 class="text-xl font-semibold text-gray-700">Set Up Your Lab Session</h2>
+
+            <!-- Lab Name Input -->
+            <div>
+                <label for="lab-name" class="block text-sm font-medium text-gray-600 mb-1">Lab Name</label>
+                <input type="text" id="lab-name" value="Web Development Lab"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                    placeholder="E.g., Python Basics, Network Setup">
+            </div>
+
+            <!-- Time Setting Inputs -->
+            <div class="flex space-x-4">
+                <div class="flex-1">
+                    <label for="minutes" class="block text-sm font-medium text-gray-600 mb-1">Minutes</label>
+                    <input type="number" id="minutes" value="5" min="0"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-center">
+                </div>
+                <div class="flex-1">
+                    <label for="seconds" class="block text-sm font-medium text-gray-600 mb-1">Seconds</label>
+                    <input type="number" id="seconds" value="0" min="0" max="59"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-center">
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button id="start-button" onclick="startTimer()"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+                <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M14.752 11.168l-3.197 2.132A1 1 0 0110 13.01v-6.02a1 1 0 011.555-.832l3.197 2.132c.319.213.433.645.244.97l-.244.408zm-7.752.832a8 8 0 1116 0A8 8 0 017 12z">
+                    </path>
+                </svg>
+                Start Lab Timer
+            </button>
+        </div>
+
+        <!-- Timer Display (Hidden initially) -->
+        <div id="timer-section" class="hidden text-center space-y-3 p-2">
+
+            <!-- Current Lab Name -->
+            <h2 id="display-lab-name" class="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight mb-1"></h2>
+
+            <!-- Motivational Message Display (fixed height to prevent layout shift) -->
+            <p id="motivation-text"
+                class="h-9 flex items-center justify-center text-sm font-medium text-indigo-700 bg-indigo-100 rounded-lg p-2 transition-opacity duration-1000">
+                Get ready to build something great!
+            </p>
+
+            <!-- Main Time Display -->
+            <div class="p-3 bg-indigo-50 rounded-2xl shadow-inner border border-indigo-200">
+                <p class="text-sm text-indigo-700 mb-1">Time Remaining</p>
+                <p id="time-display" class="text-6xl md:text-7xl font-mono font-bold text-indigo-800">00:00</p>
+            </div>
+
+            <!-- Progress Bar Container -->
+            <div class="w-full bg-gray-200 rounded-full h-4 shadow-inner overflow-hidden">
+                <div id="progress-bar" class="progress-bar h-4 rounded-full bg-green-500" style="width: 100%;"></div>
+            </div>
+
+            <!-- Time Adjustment Buttons -->
+            <div class="flex items-center justify-center gap-4 mt-1">
+                <button id="subtract-time-btn" onclick="adjustTime(-5)"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-red-50 border border-gray-300 hover:border-red-400 text-gray-700 hover:text-red-600 font-semibold rounded-xl shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4" />
+                    </svg>
+                    5 min
+                </button>
+                <span class="text-xs text-gray-400 font-medium">Adjust Time</span>
+                <button id="add-time-btn" onclick="adjustTime(5)"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-green-50 border border-gray-300 hover:border-green-400 text-gray-700 hover:text-green-700 font-semibold rounded-xl shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    5 min
+                </button>
+            </div>
+
+            <!-- Reset Button -->
+            <button id="reset-button" onclick="resetTimer()"
+                class="w-full sm:w-auto px-6 bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-xl shadow-lg transition duration-200 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50 mt-1">
+                Reset Timer
+            </button>
+        </div>
+        <!-- Note for Chatbox (shown only on setup screen) -->
+        <p id="chatbox-note"
+            class="mt-3 w-full text-center text-sm font-semibold text-gray-700 p-2 bg-yellow-50 rounded-xl border border-yellow-300 shadow-sm">
+            Stuck anywhere, drop a message on chatbox
+        </p>
+
+        <!-- Footer (always visible, compact) -->
+        <p class="mt-2 text-center text-xs text-gray-400 border-t border-gray-200 pt-2">
+            Created by <span class="font-semibold text-gray-600">Shubham Dalvi</span>
+            &bull; <a href="mailto:shubhamrdalvi@yahoo.in"
+                class="text-indigo-500 hover:text-indigo-700 transition duration-150">shubhamrdalvi@yahoo.in</a>
+        </p>
+
+    </div>
+
+    <!-- Custom Message Box/Modal for Time's Up (Hidden initially) -->
+    <div id="message-modal"
+        class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-50 flex justify-center items-center p-4">
+        <div
+            class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm w-full transform transition-all scale-100 duration-300">
+            <svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="mt-4 text-2xl font-bold text-gray-900">TIME'S UP!</h3>
+            <p id="message-body" class="mt-2 text-md text-gray-600">Your lab session has officially ended. Please
+                conclude your work.</p>
+            <button onclick="closeMessage()"
+                class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg transition duration-150">
+                Acknowledge
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Global State Variables ---
+        let timerInterval;
+        let motivationInterval; // Interval for the motivational messages
+        let totalTimeSeconds = 0;
+        let remainingTimeSeconds = 0;
+        let isRunning = false;
+        let currentMotivationIndex = 0;
+        let endTime = 0; // Wall-clock timestamp (ms) when the timer should reach zero
+
+        // --- Motivational Statements for Lab ---
+        const motivationStatements = [
+            "Hands-on learning is the fastest way to master the material!",
+            "Don't be afraid to break things. That's how we learn!",
+            "Stuck? Take a deep breath and review your last step.",
+            "Every error is an opportunity to debug and understand.",
+            "Focus on the process, the solution will follow. You got this!",
+            "Remember: documentation is your best friend.",
+            "You are actively building knowledge right now. Keep going!",
+            "The best way to predict the future is to create it.",
+        ];
+
+        // --- DOM Elements ---
+        const setupSection = document.getElementById('setup-section');
+        const timerSection = document.getElementById('timer-section');
+        const timeDisplay = document.getElementById('time-display');
+        const progressBar = document.getElementById('progress-bar');
+        const displayLabName = document.getElementById('display-lab-name');
+        const messageModal = document.getElementById('message-modal');
+        const motivationText = document.getElementById('motivation-text');
+        const labNameInput = document.getElementById('lab-name');
+        const chatboxNote = document.getElementById('chatbox-note');
+
+        // Set initial lab name if the element exists
+        if (labNameInput) {
+            labNameInput.value = "Web Development Lab";
+        }
+
+        /**
+         * Formats total seconds into MM:SS string.
+         * @param {number} totalSeconds
+         * @returns {string} formatted time string
+         */
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+
+            const pad = (num) => num.toString().padStart(2, '0');
+
+            return `${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        /**
+         * Cycles through motivational statements.
+         */
+        function startMotivationLoop() {
+            // Display the first message immediately
+            motivationText.textContent = motivationStatements[currentMotivationIndex];
+            currentMotivationIndex = (currentMotivationIndex + 1) % motivationStatements.length;
+
+            motivationInterval = setInterval(() => {
+                // Simple text update loop (for a quick change)
+                motivationText.textContent = motivationStatements[currentMotivationIndex];
+                currentMotivationIndex = (currentMotivationIndex + 1) % motivationStatements.length;
+
+            }, 5000); // Change every 5 seconds
+        }
+
+
+        /**
+         * Starts the countdown timer.
+         */
+        function startTimer() {
+            if (isRunning) return;
+
+            // 1. Get and Validate Inputs
+            const name = document.getElementById('lab-name').value.trim() || 'Untitled Lab';
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+
+            totalTimeSeconds = (minutes * 60) + seconds;
+
+            if (totalTimeSeconds <= 0) {
+                showMessage("Invalid Time", "Please set a positive time duration for the lab session.");
+                return;
+            }
+
+            remainingTimeSeconds = totalTimeSeconds;
+            isRunning = true;
+
+            // Record the exact wall-clock end time so we are immune to throttling
+            endTime = Date.now() + totalTimeSeconds * 1000;
+
+            // 2. Switch View
+            displayLabName.textContent = name;
+            setupSection.classList.add('hidden');
+            timerSection.classList.remove('hidden');
+            chatboxNote.classList.add('hidden'); // hide note to save space
+
+            // 3. Start Timer Interval (polls every 500 ms for smoother catch-up)
+            updateTimerDisplay(); // Initial display update
+            timerInterval = setInterval(updateTimer, 500);
+
+            // 4. Start Motivation Loop
+            startMotivationLoop();
+        }
+
+        /**
+         * The core loop that updates the time, progress bar, and checks for time end.
+         */
+        function updateTimer() {
+            // Derive remaining time from the real wall clock — immune to tab throttling
+            const msLeft = endTime - Date.now();
+            remainingTimeSeconds = Math.ceil(msLeft / 1000);
+
+            if (remainingTimeSeconds <= 0) {
+                clearInterval(timerInterval);
+                clearInterval(motivationInterval); // Stop motivation loop
+                remainingTimeSeconds = 0;
+                isRunning = false;
+                updateTimerDisplay(); // Ensure display is 00:00
+                showMessage("Time's Up!", `The time for the lab session "${displayLabName.textContent}" has ended. Good job!`);
+                return;
+            }
+
+            updateTimerDisplay();
+        }
+
+        // Resync immediately when the user switches back to this tab
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && isRunning) {
+                updateTimer();
+            }
+        });
+
+        /**
+         * Adjusts the running timer by +/- deltaMinutes (e.g. +5 or -5).
+         * Keeps a minimum of 10 seconds so the timer can't go negative.
+         */
+        function adjustTime(deltaMinutes) {
+            if (!isRunning) return;
+
+            const deltaMs = deltaMinutes * 60 * 1000;
+            const newEndTime = endTime + deltaMs;
+            const newMsLeft = newEndTime - Date.now();
+
+            // Never allow less than 10 seconds remaining
+            if (newMsLeft < 10000) {
+                endTime = Date.now() + 10000;
+            } else {
+                endTime = newEndTime;
+            }
+
+            // Recalculate totalTimeSeconds so progress bar stays meaningful
+            const newRemaining = Math.ceil((endTime - Date.now()) / 1000);
+            if (newRemaining > totalTimeSeconds) {
+                totalTimeSeconds = newRemaining;
+            }
+
+            // Immediately refresh the display
+            updateTimer();
+
+            // Brief visual flash on the button to give feedback
+            const btn = deltaMinutes > 0
+                ? document.getElementById('add-time-btn')
+                : document.getElementById('subtract-time-btn');
+            btn.classList.add('scale-95', 'opacity-70');
+            setTimeout(() => btn.classList.remove('scale-95', 'opacity-70'), 150);
+        }
+
+        /**
+         * Updates the digital time, progress bar width, and progress bar color.
+         */
+        function updateTimerDisplay() {
+            // Update digital time
+            timeDisplay.textContent = formatTime(remainingTimeSeconds);
+
+            // Calculate percentage
+            const percentage = (remainingTimeSeconds / totalTimeSeconds) * 100;
+            const roundedPercentage = Math.max(0, Math.round(percentage));
+
+            // Update progress bar width
+            progressBar.style.width = `${roundedPercentage}%`;
+
+            // Update progress bar color based on remaining time (Tailwind classes)
+            progressBar.classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');
+
+            if (percentage > 40) {
+                // Green: More than 40% left
+                progressBar.classList.add('bg-green-500');
+                timeDisplay.classList.remove('text-yellow-600', 'text-red-600');
+                timeDisplay.classList.add('text-indigo-800');
+            } else if (percentage > 10) {
+                // Yellow: 10% to 40% left (Warning)
+                progressBar.classList.add('bg-yellow-500');
+                timeDisplay.classList.remove('text-indigo-800', 'text-red-600');
+                timeDisplay.classList.add('text-yellow-600');
+            } else {
+                // Red: Less than 10% left (Critical)
+                progressBar.classList.add('bg-red-500');
+                timeDisplay.classList.remove('text-indigo-800', 'text-yellow-600');
+                timeDisplay.classList.add('text-red-600');
+            }
+        }
+
+        /**
+         * Stops the timer and returns to the setup screen.
+         */
+        function resetTimer() {
+            clearInterval(timerInterval);
+            clearInterval(motivationInterval); // Stop motivation loop
+            isRunning = false;
+
+            // Reset visual state
+            timeDisplay.textContent = '00:00';
+            progressBar.style.width = '100%';
+            progressBar.classList.remove('bg-yellow-500', 'bg-red-500');
+            progressBar.classList.add('bg-green-500');
+
+            // Switch View
+            timerSection.classList.add('hidden');
+            setupSection.classList.remove('hidden');
+            chatboxNote.classList.remove('hidden'); // restore note
+
+            // Reset motivation text state
+            motivationText.textContent = motivationStatements[0];
+            currentMotivationIndex = 0;
+        }
+
+        /**
+         * Custom message box (instead of alert)
+         * @param {string} title
+         * @param {string} body
+         */
+        function showMessage(title, body) {
+            document.querySelector('#message-modal h3').textContent = title;
+            document.getElementById('message-body').textContent = body;
+            messageModal.classList.remove('hidden');
+        }
+
+        /**
+         * Closes the message box and resets the timer if it was a Time's Up alert.
+         */
+        function closeMessage() {
+            messageModal.classList.add('hidden');
+            if (!isRunning && totalTimeSeconds > 0) {
+                // If the timer stopped because it finished, reset the whole app
+                resetTimer();
+            }
+        }
+    </script>
+
+</body>
+
+</html>

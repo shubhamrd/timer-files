@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Guide to Training Feedback</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Calm Harmony (Light Gray, Blue, White) -->
+    <!-- Application Structure Plan: The application translates the 5-slide presentation into a 3-section single-page app: (1) An introduction, (2) An interactive "Rating Explorer", and (3) A final "Key Summary". The core is the explorer, which uses a vertical tab-like button navigation (one for each star rating) and a dynamic content panel. This structure was chosen because it's more engaging than a linear presentation; it encourages the user to actively click and discover the meaning of each rating, reinforcing the specific interpretation of 5-star (success) vs. 4-star (flaw). The default view highlights the 5-star rating, priming the user with the most important message. -->
+    <!-- Visualization & Content Choices:
+        - Report Info (Slide 1): Intro -> Goal: Inform -> Presentation: Static HTML text block -> Interaction: None -> Justification: Sets the stage clearly.
+        - Report Info (Slides 3, 4, implied 1-3): Detailed Rating Meanings -> Goal: Organize & Inform -> Presentation: Interactive Button-driven Content Panel -> Interaction: onClick (JS) on 5 buttons dynamically updates a single content `div` with corresponding data stored in a JS object -> Justification: This replaces static tables with an engaging click-to-discover component, forcing active user participation and clarifying the difference between ratings.
+        - Report Info (Slides 2, 5): Summary -> Goal: Inform & Compare -> Presentation: Static HTML list -> Interaction: None -> Justification: Provides a final, scannable summary of the key takeaways to reinforce the message.
+        - All presentation methods use standard HTML/CSS/JS. No charts are needed as the source report is qualitative.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <main class="max-w-5xl mx-auto p-4 py-8 md:p-12">
+        
+        <!-- Section 1: Header & Introduction -->
+        <section id="intro" class="mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-700 mb-4">Your Voice Matters: Feedback Time</h1>
+            <p class="text-lg text-gray-700">
+                Thank you for your engagement during this training. Your honest feedback is crucial for my professional growth and for ensuring all future training is top-tier. This guide will help ensure your rating accurately reflects your experience, so I know exactly what worked and where to focus on improving.
+            </p>
+        </section>
+
+        <!-- Section 2: Interactive Rating Explorer -->
+        <section id="explorer" class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">Interactive Rating Guide</h2>
+            <p class="text-base text-gray-600 mb-6">
+                Click on each rating level below to see its specific meaning and the signal it sends. The 5-Star rating is shown by default.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <!-- Column 1: Rating Selector Buttons -->
+                <div class="flex flex-col space-y-3">
+                    <button class="rating-btn w-full text-left p-4 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out" data-rating="5">
+                        ⭐⭐⭐⭐⭐ 5-Star
+                    </button>
+                    <button class="rating-btn w-full text-left p-4 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out" data-rating="4">
+                        ⭐⭐⭐⭐ 4-Star
+                    </button>
+                    <button class="rating-btn w-full text-left p-4 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out" data-rating="3">
+                        ⭐⭐⭐ 3-Star
+                    </button>
+                    <button class="rating-btn w-full text-left p-4 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out" data-rating="2">
+                        ⭐⭐ 2-Star
+                    </button>
+                    <button class="rating-btn w-full text-left p-4 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out" data-rating="1">
+                        ⭐ 1-Star
+                    </button>
+                </div>
+                
+                <!-- Column 2: Dynamic Content Panel -->
+                <div id="rating-details" class="md:col-span-2 bg-white rounded-xl shadow-lg transition-all duration-300 ease-in-out">
+                    <!-- Content will be injected by JS -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 3: Key Summary -->
+        <section id="summary">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">The Key Takeaway</h2>
+            <p class="text-base text-gray-600 mb-6">
+                Please make sure your rating is clear. Here is the final summary:
+            </p>
+            <div class="space-y-4">
+                <div class="p-5 bg-green-100 border-l-4 border-green-500 rounded-r-lg">
+                    <h3 class="font-bold text-lg text-green-800">1. SUCCESS & OPTIMIZATION? (Give 5 Stars)</h3>
+                    <p class="text-green-700">If the training was effective, valuable, and met your goals, please give 5 stars. **You can still provide comments** for minor improvements (like content modifications or training duration) without lowering this score.</p>
+                </div>
+                <div class="p-5 bg-amber-100 border-l-4 border-amber-500 rounded-r-lg">
+                    <h3 class="font-bold text-lg text-amber-800">2. FUNDAMENTAL FLAW? (Give 4 Stars + Comment)</h3>
+                    <p class="text-amber-700">A 4-Star rating signals a training that **fell short due to a trainer's fundamental skill issue** (e.g., technical deficiency, poor clarity). If you choose 4, you **must add a detailed comment** explaining the core skills that were missing. This high effort confirms your choice.</p>
+                </div>
+                <div class="p-5 bg-red-100 border-l-4 border-red-500 rounded-r-lg">
+                    <h3 class="font-bold text-lg text-red-800">3. FAILURE? (Give 3 Stars or Less + Comment)</h3>
+                    <p class="text-red-700">If the course was inadequate or unhelpful, give 3 stars or lower and please add a comment to explain the issues.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Footer Section -->
+    <footer class="mt-12 py-6 border-t border-gray-200 text-center text-sm text-gray-500">
+        <p>Created by Shubham Dalvi, contact: <a href="mailto:shubhamrdalvi@yahoo.in" class="text-blue-600 hover:text-blue-800 transition duration-150">shubhamrdalvi@yahoo.in</a></p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const ratingData = {
+                "5": {
+                    title: "5-Star (Very Good): Mission Accomplished & Optimization",
+                    interpretation: "<strong>This course was a success!</strong> It met or exceeded expectations, delivered clear value, and the objectives were achieved. The trainer was effective and knowledgeable.",
+                    action: "<strong>The BEST signal.</strong> If your learning objectives were met, this is the simple, honest choice. Use the comment section to provide suggestions for small improvements like content modifications or timing, if needed.",
+                    bgColor: "bg-blue-600",
+                    textColor: "text-white",
+                    panelClasses: "border-blue-500"
+                },
+                "4": {
+                    title: "4-Star (Good): Fundamental Flaw Detected",
+                    interpretation: "<strong>Fundamental Flaw:</strong> This rating signifies a **major failure in the trainer's core ability** (e.g., lack of technical skills, inability to explain topics clearly, or failure to address doubts). This signals a critical and fundamental training issue that requires immediate attention.",
+                    action: "<strong>CRITICAL EFFORT REQUIRED.</strong> If you choose 4-Stars, you **must provide a clear, detailed explanation of the trainer's missing core skill or fundamental failure** in the comments. This high effort is needed to justify this major organizational signal.",
+                    bgColor: "bg-amber-600",
+                    textColor: "text-white",
+                    panelClasses: "border-amber-500"
+                },
+                "3": {
+                    title: "3-Star (Satisfactory): Significant Problems",
+                    interpretation: "<strong>The course was only adequate.</strong> There were definite disappointments or shortcomings, and the core learning objectives were only partially met.",
+                    action: "This rating signals that the course content or delivery needs major revision to be effective.",
+                    bgColor: "bg-red-600",
+                    textColor: "text-white",
+                    panelClasses: "border-red-500"
+                },
+                "2": {
+                    title: "2-Star (Needs Improvement): Failed to Meet Basics",
+                    interpretation: "<strong>The course failed to meet basic expectations.</strong> The time spent was not worthwhile, and the learning objectives were not achieved.",
+                    action: "This indicates a significant issue with the training that requires immediate review.",
+                    bgColor: "bg-red-600",
+                    textColor: "text-white",
+                    panelClasses: "border-red-500"
+                },
+                "1": {
+                    title: "1-Star (Poor): Complete Failure",
+                    interpretation: "<strong>Complete failure to meet expectations.</strong> The course was disorganized, unhelpful, or ineffective.",
+                    action: "This requires immediate review and intervention.",
+                    bgColor: "bg-red-600",
+                    textColor: "text-white",
+                    panelClasses: "border-red-500"
+                }
+            };
+
+            const buttons = document.querySelectorAll('.rating-btn');
+            const contentPanel = document.getElementById('rating-details');
+            const inactiveClasses = 'bg-gray-200 text-gray-700 hover:bg-gray-300';
+            const activeClasses = 'bg-blue-600 text-white shadow-lg';
+
+            function updatePanel(rating) {
+                const data = ratingData[rating];
+                
+                contentPanel.innerHTML = `
+                    <div class="p-6 md:p-8 border-t-8 rounded-xl ${data.panelClasses}">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">${data.title}</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-500 uppercase tracking-wide">Interpretation</h4>
+                                <p class="text-gray-700">${data.interpretation}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-500 uppercase tracking-wide">Action Requested</h4>
+                                <p class="text-gray-700">${data.action}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                buttons.forEach(btn => {
+                    if (btn.dataset.rating === rating) {
+                        // Keep buttons consistently blue for active state for clean UI
+                        btn.className = `rating-btn w-full text-left p-4 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out ${activeClasses}`;
+                    } else {
+                        btn.className = `rating-btn w-full text-left p-4 rounded-lg text-lg font-semibold transition-all duration-200 ease-in-out ${inactiveClasses}`;
+                    }
+                });
+            }
+
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    updatePanel(button.dataset.rating);
+                });
+            });
+
+            updatePanel('5');
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Training Intro</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    header {
+      background-color: #4a6fa5;
+      color: white;
+      padding: 1.5rem;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    main {
+      padding: 2rem;
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    input, textarea {
+      margin: 8px 0;
+      padding: 10px;
+      width: 80%;
+      max-width: 500px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #4a6fa5;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      background-color: #36567c;
+    }
+
+    #displaySection {
+      display: none;
+      margin-top: 2rem;
+    }
+
+    #topicsList {
+      text-align: left;
+      display: inline-block;
+      margin-top: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      background-color: #2c2c3e;
+      color: white;
+      padding: 1.2rem 1rem;
+      margin-top: 2rem;
+    }
+
+    footer a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="trainingTitle">Training Session</h1>
+  </header>
+
+  <main>
+    <div class="form-section" id="inputSection">
+      <h2>Enter Session Details</h2>
+      <input type="text" id="trainingName" placeholder="Training Name (e.g., Docker & Kubernetes)" /><br>
+      <textarea id="topics" rows="4" placeholder="Topics covered yesterday (one per line)"></textarea><br>
+      <input type="text" id="startTime" placeholder="Training start time (e.g., 10:00 AM)" /><br>
+      <button onclick="showDetails()">Show Waiting Page</button>
+    </div>
+
+    <div id="displaySection">
+      <h2 id="displayTrainingName"></h2>
+      <div id="topicsSection">
+        <h3>Yesterday we covered:</h3>
+        <ul id="topicsList"></ul>
+      </div>
+      <p id="startMessage"></p>
+    </div>
+  </main>
+
+  <footer>
+    Created by <strong>Shubham Dalvi</strong> | Contact:
+    <a href="mailto:shubhamrdalvi@yahoo.in">shubhamrdalvi@yahoo.in</a>
+  </footer>
+
+  <script>
+    function showDetails() {
+      const name = document.getElementById("trainingName").value;
+      const topics = document.getElementById("topics").value;
+      const startTime = document.getElementById("startTime").value;
+
+      // Hide form
+      document.getElementById("inputSection").style.display = "none";
+      document.getElementById("displaySection").style.display = "block";
+
+      // Update training title
+      document.getElementById("trainingTitle").textContent = name || "Training Session";
+      document.getElementById("displayTrainingName").textContent = name || "Training Session";
+
+      // Update topics
+      const topicsList = document.getElementById("topicsList");
+      topicsList.innerHTML = "";
+      if (topics.trim() !== "") {
+        document.getElementById("topicsSection").style.display = "block";
+        topics.split("\n").forEach(topic => {
+          const li = document.createElement("li");
+          li.textContent = topic.trim();
+          topicsList.appendChild(li);
+        });
+      } else {
+        document.getElementById("topicsSection").style.display = "none";
+      }
+
+      // Update start message
+      document.getElementById("startMessage").textContent =
+        "Training will start at " + (startTime || "the scheduled time") + " — Waiting for participants to join...";
+    }
+  </script>
+</body>
+</html>

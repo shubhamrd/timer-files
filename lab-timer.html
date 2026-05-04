@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lab Timer - Hands-On Time</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 1rem;
+    }
+
+    header img {
+      max-height: 100px;
+    }
+
+    header h1 {
+      margin-top: 1rem;
+      font-size: 2rem;
+    }
+
+    main {
+      padding: 2rem;
+    }
+
+    .timer-controls {
+      margin: 1.5rem 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 8px;
+      font-size: 1rem;
+      border: none;
+      background-color: #4a90e2;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #357abd;
+    }
+
+    #timerDisplay {
+      font-size: 4rem;
+      margin: 1.5rem 0;
+      font-weight: bold;
+    }
+
+    #motivationalMessage {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      color: #444;
+    }
+
+    .progress-bar {
+      height: 25px;
+      width: 80%;
+      background-color: #ddd;
+      margin: 1rem auto;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      width: 100%;
+      background-color: green;
+      transition: width 1s linear, background-color 0.5s;
+    }
+
+    footer {
+      text-align: center;
+      background-color: #2c2c3e;
+      color: white;
+      padding: 1.5rem 1rem;
+    }
+
+    footer .help-message {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #ffd700;
+      margin-bottom: 0.5rem;
+    }
+
+    footer a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      #timerDisplay {
+        font-size: 3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://website-content-shubhamd.s3.amazonaws.com/lab-logo.png" alt="Lab Logo" />
+    <h1>Lab Time — Dive In and Build!</h1>
+  </header>
+
+  <main>
+    <div class="timer-controls">
+      <button onclick="startTimer(10)">10 Min</button>
+      <button onclick="startTimer(15)">15 Min</button>
+      <button onclick="startTimer(20)">20 Min</button>
+      <input type="number" id="customMinutes" placeholder="Custom min" style="width:80px; padding:5px;" min="1" />
+      <button onclick="startCustomTimer()">Start</button>
+    </div>
+
+    <div id="timerDisplay">00:00</div>
+    <div class="progress-bar">
+      <div id="progress" class="progress"></div>
+    </div>
+
+    <div>
+      <button onclick="pauseTimer()">Pause</button>
+      <button onclick="resetTimer()">Reset</button>
+    </div>
+
+    <div id="motivationalMessage"></div>
+  </main>
+
+  <footer>
+    <div class="help-message">Stuck anywhere? Drop a message in the chat box!</div>
+    <div>
+      Created by <strong>Shubham Dalvi</strong> | Contact: 
+      <a href="mailto:shubhamrdalvi@yahoo.in">shubhamrdalvi@yahoo.in</a>
+    </div>
+  </footer>
+
+  <script>
+    let timerInterval;
+    let totalTime = 0;
+    let endTime;
+    let paused = false;
+    let timeLeftWhenPaused = 0;
+
+    const motivationalMessages = [
+      "Keep going, you're doing great!",
+      "Remember: Try before you ask.",
+      "Explore! Break things! Learn things!",
+      "If you're stuck, re-read the instructions slowly.",
+      "Don’t forget to document your steps!",
+    ];
+
+    function startTimer(minutes) {
+      totalTime = minutes * 60 * 1000;
+      endTime = Date.now() + totalTime;
+      paused = false;
+      updateTimer();
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function startCustomTimer() {
+      const input = document.getElementById("customMinutes").value;
+      const customMinutes = parseFloat(input);
+      if (!isNaN(customMinutes) && customMinutes > 0) {
+        startTimer(customMinutes);
+      }
+    }
+
+    function updateTimer() {
+      if (paused) return;
+
+      const timeLeft = endTime - Date.now();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById("timerDisplay").textContent = "00:00";
+        document.getElementById("progress").style.width = "0%";
+        document.getElementById("progress").style.backgroundColor = "red";
+        document.getElementById("motivationalMessage").textContent = "Time's up! Let’s discuss or move ahead.";
+        return;
+      }
+
+      const minutes = Math.floor(timeLeft / 60000);
+      const seconds = Math.floor((timeLeft % 60000) / 1000);
+      document.getElementById("timerDisplay").textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+      const percentLeft = (timeLeft / totalTime) * 100;
+      const progress = document.getElementById("progress");
+      progress.style.width = percentLeft + "%";
+
+      if (percentLeft < 25) {
+        progress.style.backgroundColor = "red";
+      } else if (percentLeft < 50) {
+        progress.style.backgroundColor = "orange";
+      } else {
+        progress.style.backgroundColor = "green";
+      }
+
+      const msgIndex = Math.floor(Math.random() * motivationalMessages.length);
+      document.getElementById("motivationalMessage").textContent = motivationalMessages[msgIndex];
+    }
+
+    function pauseTimer() {
+      if (!paused) {
+        paused = true;
+        timeLeftWhenPaused = endTime - Date.now();
+        clearInterval(timerInterval);
+      } else {
+        paused = false;
+        endTime = Date.now() + timeLeftWhenPaused;
+        timerInterval = setInterval(updateTimer, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      document.getElementById("timerDisplay").textContent = "00:00";
+      document.getElementById("progress").style.width = "100%";
+      document.getElementById("progress").style.backgroundColor = "green";
+      document.getElementById("motivationalMessage").textContent = "";
+    }
+  </script>
+</body>
+</html>

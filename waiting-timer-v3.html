@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Session - Waiting Room</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            overflow-x: hidden;
+            /* Ensure the body takes up exactly the viewport height to prevent scrolling if possible */
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Slide animation for facts */
+        .slide-up {
+            animation: slideUp 0.8s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom scrollbar for inputs if needed */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #ffffff;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SETUP VIEW (Scrollable if needed, independent of body height constraint) -->
+    <div id="setup-view"
+        class="w-full max-w-lg p-6 glass-panel rounded-2xl fade-in relative z-10 m-4 overflow-y-auto max-h-screen">
+        <h1 class="text-xl font-bold text-white mb-4 text-center tracking-tight">Session Setup</h1>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1">Training Title</label>
+                <input type="text" id="input-title" placeholder="e.g., Advanced Kubernetes"
+                    class="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 placeholder-gray-500 transition-colors">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1">Training Start Time</label>
+                <input type="time" id="input-start-time"
+                    class="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 text-center font-mono">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1">
+                    Industry Insights / Facts
+                    <span class="text-[10px] text-blue-400 ml-2 font-normal">(One per line)</span>
+                </label>
+                <textarea id="input-facts" rows="5" placeholder="Enter facts manually or generate with AI..."
+                    class="w-full bg-gray-800 border border-gray-700 text-white text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 placeholder-gray-500 transition-colors mb-2 leading-relaxed"></textarea>
+
+                <button onclick="generateFactsWrapper()" id="btn-generate"
+                    class="text-xs bg-purple-600 hover:bg-purple-700 text-white py-1.5 px-3 rounded-md transition-all flex items-center justify-center w-full sm:w-auto">
+                    <span>Generate Insights with Gemini ✨</span>
+                </button>
+            </div>
+
+            <div class="pt-4 border-t border-gray-700">
+                <button onclick="startSession()"
+                    class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all transform hover:scale-[1.02] shadow-lg">
+                    Start Waiting Screen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRESENTATION VIEW -->
+    <div id="presentation-view"
+        class="hidden flex-col items-center justify-center w-full h-full max-w-7xl px-4 relative z-10 py-4">
+
+        <!-- Header Info -->
+        <div class="mb-4 fade-in w-full max-w-4xl text-center">
+            <span
+                class="inline-block py-0.5 px-2 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-bold tracking-wider uppercase mb-2 border border-blue-500/30">
+                Live Training Session
+            </span>
+            <!-- Reduced Font Size for Title -->
+            <h1 id="display-title"
+                class="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-2 tracking-tight leading-tight">
+                Training Title Here
+            </h1>
+            <p class="text-base text-gray-400 font-light mb-4">
+                Presenter: <span class="text-white font-medium">Shubham Dalvi</span>
+            </p>
+
+            <!-- Dynamic Facts Display -->
+            <div id="display-facts-container"
+                class="hidden relative overflow-hidden bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-sm mx-auto max-w-2xl min-h-[100px] flex flex-col justify-center items-center transform transition-all hover:bg-white/10">
+                <h3
+                    class="text-blue-300 text-[10px] font-bold uppercase tracking-widest mb-2 border-b border-blue-500/20 pb-1">
+                    Industry Insight</h3>
+                <div id="display-fact-text"
+                    class="text-gray-200 text-base md:text-lg font-medium leading-snug italic text-center">
+                    <!-- Fact will be injected here -->
+                </div>
+                <!-- Progress bar for the fact timer (30 seconds) -->
+                <div class="absolute bottom-0 left-0 h-0.5 bg-blue-500/30 w-full">
+                    <div id="fact-progress"
+                        class="h-full bg-blue-400 transition-all duration-[30000ms] ease-linear w-0"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timer Card -->
+        <div
+            class="glass-panel p-6 md:p-10 rounded-3xl mb-6 fade-in w-full max-w-xl mx-auto transform transition-all hover:border-blue-500/30 flex flex-col items-center justify-center">
+            <p class="text-gray-400 uppercase tracking-widest text-xs font-semibold mb-2">We will start in</p>
+
+            <!-- Reduced Font Size for Timer -->
+            <div id="timer-display"
+                class="text-6xl md:text-8xl font-mono font-bold text-white tabular-nums tracking-tighter mb-2 leading-none">
+                00:00
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-700 h-1.5 rounded-full mt-4 overflow-hidden">
+                <div id="progress-bar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-1000 ease-linear"
+                    style="width: 100%"></div>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div class="fade-in mb-8">
+            <div
+                class="flex items-center justify-center space-x-2 text-gray-300 bg-black/20 inline-flex px-4 py-2 rounded-full backdrop-blur-sm border border-white/5">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </span>
+                <span class="font-medium text-sm tracking-wide" id="status-message">Waiting for participants to
+                    join...</span>
+            </div>
+        </div>
+
+        <!-- Hidden Controls (Hover to show at bottom) -->
+        <div
+            class="fixed bottom-4 left-0 right-0 flex justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-auto">
+            <div class="bg-gray-900/80 backdrop-blur rounded-lg p-1.5 flex space-x-1 border border-gray-700 shadow-2xl">
+                <button onclick="adjustTime(1)"
+                    class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-[10px] text-white">+1m</button>
+                <button onclick="adjustTime(5)"
+                    class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-[10px] text-white">+5m</button>
+                <button onclick="adjustTime(-1)"
+                    class="px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-[10px] text-white">-1m</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Background decorative elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px]">
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // ACTION REQUIRED: REPLACE THIS WITH YOUR API GATEWAY URL!
+        // This is the URL you got after deploying your TrainingFactProxyAPI.
+        // =========================================================================
+        const apiGatewayUrl = "https://2svwiv8kv5.execute-api.ap-south-1.amazonaws.com/prod";
+
+        let totalSeconds = 0;
+        let remainingSeconds = 0;
+        let timerInterval;
+
+        // Facts Logic Variables
+        let factsArray = [];
+        let currentFactIndex = 0;
+        let factInterval;
+        const FACT_INTERVAL_MS = 30000; // 30 seconds
+
+        // Set default time to 5 minutes from now
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const future = new Date(now.getTime() + 5 * 60000); // Add 5 minutes
+            const hours = future.getHours().toString().padStart(2, '0');
+            const minutes = future.getMinutes().toString().padStart(2, '0');
+            document.getElementById('input-start-time').value = `${hours}:${minutes}`;
+        });
+
+        function calculateRemainingTime(startTimeValue) {
+            const now = new Date();
+            const [startHours, startMinutes] = startTimeValue.split(':').map(Number);
+
+            const startDate = new Date();
+            startDate.setHours(startHours, startMinutes, 0, 0);
+
+            // Adjust start date if the specified time is earlier than the current time
+            if (startDate.getTime() < now.getTime() && (now.getHours() > startHours || (now.getHours() === startHours && now.getMinutes() >= startMinutes))) {
+                // If time passed today, set it for the next day
+                startDate.setDate(startDate.getDate() + 1);
+            }
+
+            return Math.max(0, Math.floor((startDate.getTime() - now.getTime()) / 1000));
+        }
+
+        function generateFactsWrapper() {
+            const startTimeValue = document.getElementById('input-start-time').value;
+            const remainingTime = calculateRemainingTime(startTimeValue);
+
+            // Calculate fact count: 1 fact per minute remaining, minimum 5
+            const factCount = Math.max(5, Math.ceil(remainingTime / 60));
+
+            generateFacts(factCount);
+        }
+
+        // Gemini API Logic - NOW SECURELY CALLING API GATEWAY
+        async function generateFacts(factCount) {
+            const title = document.getElementById('input-title').value.trim();
+            const btn = document.getElementById('btn-generate');
+            const factsInput = document.getElementById('input-facts');
+
+            if (!title) {
+                alert("Please enter a Training Title first.");
+                return;
+            }
+            // --- Check for Placeholder URL ---
+            if (apiGatewayUrl.includes('PASTE_YOUR_FULL_API_GATEWAY_ENDPOINT_URL_HERE')) {
+                alert("CONFIGURATION ERROR: Please update 'apiGatewayUrl' in the script with your deployed AWS API Gateway URL.");
+                // Immediately show a local error message in the console and text area
+                console.error("CONFIGURATION ERROR: API Gateway URL is the default placeholder.");
+                factsInput.value = "ERROR: Configuration required. Please update the 'apiGatewayUrl' variable in the script.";
+                btn.disabled = false;
+                btn.innerHTML = 'Generate Insights with Gemini ✨';
+                return;
+            }
+
+            // UI Loading State
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> Generating...';
+            btn.disabled = true;
+
+            // --- Construct Prompt for Lambda to Pass to Gemini ---
+            const prompt = `You are an expert technical trainer. For the training topic '${title}', generate a JSON array of ${factCount} distinct, engaging, single-sentence insights. 
+            The insights must cover real-world case studies (e.g., 'How Uber uses...'), key statistics or facts, and primary use cases or benefits. 
+            Respond ONLY with the valid JSON array of strings. Do not use markdown formatting like \`\`\`json.`;
+
+            try {
+                const response = await fetch(apiGatewayUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // Send the prompt inside the body, which Lambda will read
+                    body: JSON.stringify({ prompt: prompt })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Lambda/API Error Response:", errorText);
+                    // Attempt to show error from Lambda body if available
+                    let errorMsg = `Server responded with status ${response.status}. Check API Gateway/Lambda logs.`;
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        if (errorData && errorData.error) errorMsg = errorData.error;
+                    } catch (e) { /* ignore parse error */ }
+                    throw new Error(errorMsg);
+                }
+
+                // The response body is the JSON object returned by Lambda, which contains the 'facts' array.
+                const resultJson = await response.json();
+                const factsResult = resultJson.facts;
+
+                if (factsResult && Array.isArray(factsResult)) {
+                    factsInput.value = factsResult.join('\n');
+                } else {
+                    factsInput.value = "AI Generation Failed: Could not parse facts array.";
+                }
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                // Display specific error detail in the textarea
+                factsInput.value = `Error: ${error.message}. Check browser console (F12) for network/CORS details.`;
+            } finally {
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+            }
+        }
+
+        function startSession() {
+            // Get inputs
+            const titleInput = document.getElementById('input-title').value;
+            const startTimeValue = document.getElementById('input-start-time').value;
+            const factsText = document.getElementById('input-facts').value;
+
+            // Validate Start Time
+            if (!startTimeValue || startTimeValue.trim() === '') {
+                alert("Please specify the Training Start Time.");
+                return;
+            }
+
+            // Calculate Time
+            const remainingTime = calculateRemainingTime(startTimeValue);
+
+            if (remainingTime <= 0) {
+                alert("The specified start time is in the past. Please select a time in the future.");
+                return;
+            }
+
+            // Set Data
+            document.getElementById('display-title').textContent = titleInput.trim() || "Untitled Session";
+
+            // Process Facts
+            if (factsText.trim()) {
+                factsArray = factsText.split('\n').filter(line => line.trim() !== '');
+            } else {
+                factsArray = ["Get ready for an exciting session!", "The training will begin shortly."];
+            }
+
+            if (factsArray.length > 0) {
+                document.getElementById('display-facts-container').classList.remove('hidden');
+                document.getElementById('display-facts-container').classList.add('flex');
+                startFactRotation();
+            } else {
+                document.getElementById('display-facts-container').classList.add('hidden');
+            }
+
+            // Initial Time Setup
+            totalSeconds = remainingTime;
+            remainingSeconds = remainingTime;
+
+            // Toggle Views
+            document.getElementById('setup-view').classList.add('hidden');
+            const presentationView = document.getElementById('presentation-view');
+            presentationView.classList.remove('hidden');
+            presentationView.classList.add('flex');
+
+            // Start Timer
+            updateTimerUI();
+            timerInterval = setInterval(tick, 1000);
+        }
+
+        function startFactRotation() {
+            // Stop any existing rotation
+            if (factInterval) clearInterval(factInterval);
+
+            showNextFact(); // Show first fact immediately
+
+            factInterval = setInterval(showNextFact, FACT_INTERVAL_MS);
+        }
+
+        function showNextFact() {
+            if (factsArray.length === 0) return;
+
+            const factElement = document.getElementById('display-fact-text');
+            const progressBar = document.getElementById('fact-progress');
+
+            // Reset animation
+            factElement.classList.remove('slide-up');
+            void factElement.offsetWidth; // Trigger reflow
+
+            // Update text
+            factElement.textContent = factsArray[currentFactIndex];
+            factElement.classList.add('slide-up');
+
+            // Reset and start progress bar
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '0%';
+            void progressBar.offsetWidth; // Trigger reflow
+            progressBar.style.transition = `width ${FACT_INTERVAL_MS}ms linear`;
+            progressBar.style.width = '100%';
+
+            // Increment index
+            currentFactIndex = (currentFactIndex + 1) % factsArray.length;
+        }
+
+        function tick() {
+            if (remainingSeconds > 0) {
+                remainingSeconds--;
+                updateTimerUI();
+            } else {
+                clearInterval(timerInterval);
+                timerFinished();
+            }
+        }
+
+        function updateTimerUI() {
+            // Format MM:SS
+            const m = Math.floor(remainingSeconds / 60);
+            const s = remainingSeconds % 60;
+            const formattedTime = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+            document.getElementById('timer-display').textContent = formattedTime;
+
+            // Update Progress Bar
+            const percentage = totalSeconds > 0 ? (remainingSeconds / totalSeconds) * 100 : 0;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+
+            // Color Logic (Turn red if under 1 minute)
+            const progressBar = document.getElementById('progress-bar');
+            if (remainingSeconds <= 60) {
+                progressBar.classList.remove('bg-blue-500');
+                progressBar.classList.add('bg-red-500');
+            } else {
+                progressBar.classList.add('bg-blue-500');
+                progressBar.classList.remove('bg-red-500');
+            }
+        }
+
+        function timerFinished() {
+            document.getElementById('timer-display').textContent = "00:00";
+            document.getElementById('timer-display').classList.add('text-green-400');
+            document.querySelector('.animate-ping').classList.remove('bg-green-400');
+            document.querySelector('.animate-ping').classList.add('bg-blue-400');
+            // Update message
+            document.getElementById('status-message').textContent = "Training will start soon.";
+
+            // Stop fact rotation once timer is done
+            if (factInterval) clearInterval(factInterval);
+        }
+
+        // Helper to add/remove time dynamically
+        function adjustTime(minutes) {
+            remainingSeconds += (minutes * 60);
+            if (remainingSeconds < 0) remainingSeconds = 0;
+
+            if (remainingSeconds > totalSeconds) {
+                totalSeconds = remainingSeconds;
+            }
+
+            updateTimerUI();
+
+            // Restart timer if it had finished
+            if (remainingSeconds > 0 && (!timerInterval || document.getElementById('timer-display').classList.contains('text-green-400'))) {
+                if (timerInterval) clearInterval(timerInterval);
+
+                timerInterval = setInterval(tick, 1000);
+                document.getElementById('timer-display').classList.remove('text-green-400');
+                document.getElementById('status-message').textContent = "Waiting for participants to join...";
+
+                // Restart fact rotation
+                if (factsArray.length > 0) startFactRotation();
+            }
+        }
+    </script>
+</body>
+
+</html>

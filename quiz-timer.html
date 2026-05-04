@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Timer Pro</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font family -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb; /* Lighter, more corporate background */
+            display: flex;
+            flex-direction: column; /* Allow footer to stack below main content */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        /* Custom styles for the progress bar animation */
+        .progress-bar {
+            transition: width 1s linear, background-color 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+
+<div class="w-full max-w-2xl bg-white p-6 md:p-10 shadow-xl rounded-2xl border border-gray-200">
+
+    <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-6 border-b pb-4">
+        Quiz Time
+    </h1>
+
+    <!-- Setup Form (Initial State) -->
+    <div id="setup-section" class="space-y-6">
+        <h2 class="text-xl font-semibold text-gray-700">Set Up Your Quiz</h2>
+
+        <!-- Quiz Name Input -->
+        <div>
+            <label for="quiz-name" class="block text-sm font-medium text-gray-600 mb-1">Quiz Name</label>
+            <input type="text" id="quiz-name" value="Exam Challenge"
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                   placeholder="E.g., Midterm Review, Daily Quiz">
+        </div>
+
+        <!-- Time Setting Inputs -->
+        <div class="flex space-x-4">
+            <div class="flex-1">
+                <label for="minutes" class="block text-sm font-medium text-gray-600 mb-1">Minutes</label>
+                <input type="number" id="minutes" value="5" min="0"
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-center">
+            </div>
+            <div class="flex-1">
+                <label for="seconds" class="block text-sm font-medium text-gray-600 mb-1">Seconds</label>
+                <input type="number" id="seconds" value="0" min="0" max="59"
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-center">
+            </div>
+        </div>
+
+        <!-- Start Button -->
+        <button id="start-button" onclick="startTimer()"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50">
+            <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197 2.132A1 1 0 0110 13.01v-6.02a1 1 0 011.555-.832l3.197 2.132c.319.213.433.645.244.97l-.244.408zm-7.752.832a8 8 0 1116 0A8 8 0 017 12z"></path></svg>
+            Start Quiz Timer
+        </button>
+    </div>
+
+    <!-- Timer Display (Hidden initially) -->
+    <div id="timer-section" class="hidden text-center space-y-8 p-4">
+        
+        <!-- Current Quiz Name -->
+        <h2 id="display-quiz-name" class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight"></h2>
+
+        <!-- Main Time Display -->
+        <div class="p-6 bg-indigo-50 rounded-2xl shadow-inner border border-indigo-200">
+            <p class="text-lg text-indigo-700 mb-2">Time Remaining</p>
+            <p id="time-display" class="text-7xl md:text-8xl font-mono font-bold text-indigo-800">00:00</p>
+        </div>
+
+        <!-- Progress Bar Container -->
+        <div class="w-full bg-gray-200 rounded-full h-4 shadow-inner overflow-hidden">
+            <div id="progress-bar" class="progress-bar h-4 rounded-full bg-green-500" style="width: 100%;"></div>
+        </div>
+        <!-- Removed percentage display text element -->
+
+        <!-- Reset Button -->
+        <button id="reset-button" onclick="resetTimer()"
+                class="w-full sm:w-auto px-6 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200 focus:outline-none focus:ring-4 focus:ring-red-500 focus:ring-opacity-50">
+            Reset Timer
+        </button>
+    </div>
+</div>
+
+<!-- Footer Section -->
+<footer class="mt-10 w-full max-w-2xl text-center text-xs sm:text-sm text-gray-500">
+    <p class="border-t border-gray-300 pt-4">
+        Created by <span class="font-semibold text-gray-700">Shubham Dalvi</span>
+        | Contact: <a href="mailto:shubhamrdalvi@yahoo.in" class="text-indigo-600 hover:text-indigo-800 font-medium transition duration-150">shubhamrdalvi@yahoo.in</a>
+    </p>
+</footer>
+
+<!-- Custom Message Box/Modal for Time's Up (Hidden initially) -->
+<div id="message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-50 flex justify-center items-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm w-full transform transition-all scale-100 duration-300">
+        <svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <h3 class="mt-4 text-2xl font-bold text-gray-900">TIME'S UP!</h3>
+        <p id="message-body" class="mt-2 text-md text-gray-600">Your quiz time has officially ended. Please submit your answers.</p>
+        <button onclick="closeMessage()"
+                class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg transition duration-150">
+            Acknowledge
+        </button>
+    </div>
+</div>
+
+<script>
+    // --- Global State Variables ---
+    let timerInterval;
+    let totalTimeSeconds = 0;
+    let remainingTimeSeconds = 0;
+    let isRunning = false;
+
+    // --- DOM Elements ---
+    const setupSection = document.getElementById('setup-section');
+    const timerSection = document.getElementById('timer-section');
+    const timeDisplay = document.getElementById('time-display');
+    const progressBar = document.getElementById('progress-bar');
+    // Removed const percentageText = document.getElementById('percentage-text');
+    const displayQuizName = document.getElementById('display-quiz-name');
+    const messageModal = document.getElementById('message-modal');
+
+    /**
+     * Formats total seconds into MM:SS string.
+     * @param {number} totalSeconds
+     * @returns {string} formatted time string
+     */
+    function formatTime(totalSeconds) {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+
+        const pad = (num) => num.toString().padStart(2, '0');
+
+        return `${pad(minutes)}:${pad(seconds)}`;
+    }
+
+    /**
+     * Starts the countdown timer.
+     */
+    function startTimer() {
+        if (isRunning) return;
+
+        // 1. Get and Validate Inputs
+        const name = document.getElementById('quiz-name').value.trim() || 'Untitled Quiz';
+        const minutes = parseInt(document.getElementById('minutes').value) || 0;
+        const seconds = parseInt(document.getElementById('seconds').value) || 0;
+
+        totalTimeSeconds = (minutes * 60) + seconds;
+
+        if (totalTimeSeconds <= 0) {
+            showMessage("Invalid Time", "Please set a positive time duration for the quiz.");
+            return;
+        }
+
+        remainingTimeSeconds = totalTimeSeconds;
+        isRunning = true;
+
+        // 2. Switch View
+        displayQuizName.textContent = name;
+        setupSection.classList.add('hidden');
+        timerSection.classList.remove('hidden');
+
+        // 3. Start Interval
+        updateTimerDisplay(); // Initial display update
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    /**
+     * The core loop that updates the time, progress bar, and checks for time end.
+     */
+    function updateTimer() {
+        remainingTimeSeconds--;
+
+        if (remainingTimeSeconds < 0) {
+            clearInterval(timerInterval);
+            remainingTimeSeconds = 0;
+            isRunning = false;
+            updateTimerDisplay(); // Ensure display is 00:00
+            showMessage("Time's Up!", `The time for the quiz "${displayQuizName.textContent}" has ended. Good job!`);
+            return;
+        }
+
+        updateTimerDisplay();
+    }
+
+    /**
+     * Updates the digital time, progress bar width, and progress bar color.
+     */
+    function updateTimerDisplay() {
+        // Update digital time
+        timeDisplay.textContent = formatTime(remainingTimeSeconds);
+
+        // Calculate percentage
+        const percentage = (remainingTimeSeconds / totalTimeSeconds) * 100;
+        const roundedPercentage = Math.max(0, Math.round(percentage));
+
+        // Update progress bar width
+        progressBar.style.width = `${roundedPercentage}%`;
+        // Removed percentageText update
+
+        // Update progress bar color based on remaining time (Tailwind classes)
+        progressBar.classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');
+
+        if (percentage > 40) {
+            // Green: More than 40% left
+            progressBar.classList.add('bg-green-500');
+            timeDisplay.classList.remove('text-yellow-600', 'text-red-600');
+            timeDisplay.classList.add('text-indigo-800');
+        } else if (percentage > 10) {
+            // Yellow: 10% to 40% left (Warning)
+            progressBar.classList.add('bg-yellow-500');
+            timeDisplay.classList.remove('text-indigo-800', 'text-red-600');
+            timeDisplay.classList.add('text-yellow-600');
+        } else {
+            // Red: Less than 10% left (Critical)
+            progressBar.classList.add('bg-red-500');
+            timeDisplay.classList.remove('text-indigo-800', 'text-yellow-600');
+            timeDisplay.classList.add('text-red-600');
+        }
+    }
+
+    /**
+     * Stops the timer and returns to the setup screen.
+     */
+    function resetTimer() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        
+        // Reset visual state
+        timeDisplay.textContent = '00:00';
+        progressBar.style.width = '100%';
+        progressBar.classList.remove('bg-yellow-500', 'bg-red-500');
+        progressBar.classList.add('bg-green-500');
+        // Removed percentageText reset
+
+        // Switch View
+        timerSection.classList.add('hidden');
+        setupSection.classList.remove('hidden');
+    }
+
+    /**
+     * Custom message box (instead of alert)
+     * @param {string} title
+     * @param {string} body
+     */
+    function showMessage(title, body) {
+        document.querySelector('#message-modal h3').textContent = title;
+        document.getElementById('message-body').textContent = body;
+        messageModal.classList.remove('hidden');
+    }
+
+    /**
+     * Closes the message box and resets the timer if it was a Time's Up alert.
+     */
+    function closeMessage() {
+        messageModal.classList.add('hidden');
+        if (!isRunning && totalTimeSeconds > 0) {
+             // If the timer stopped because it finished, reset the whole app
+            resetTimer(); 
+        }
+    }
+</script>
+
+</body>
+</html>
