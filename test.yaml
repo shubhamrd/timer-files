@@ -1,0 +1,18 @@
+version: "3.9"
+name: web-compose
+services:
+  web:
+    image: nginx
+    ports:
+      - "8090:80"
+      - "8095:95"
+      - "8096:96"
+    environment:
+      SSL_ENGINE_STATE: "on"
+      DB_HOST_ENDPOINT: "db1.example.com"
+  db:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root123"

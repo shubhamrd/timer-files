@@ -6,6 +6,8 @@
     <title>Quiz Timer Pro</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- QRCode.js library for generating QR codes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Use Inter font family -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
@@ -17,7 +19,16 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 1rem;
+            padding: 0.5rem;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
         /* Custom styles for the progress bar animation */
         .progress-bar {
@@ -27,7 +38,7 @@
 </head>
 <body>
 
-<div class="w-full max-w-2xl bg-white p-6 md:p-10 shadow-xl rounded-2xl border border-gray-200">
+<div class="container w-full max-w-2xl bg-white p-3 md:p-5 shadow-xl rounded-2xl border border-gray-200">
 
     <h1 class="text-3xl font-extrabold text-gray-800 text-center mb-6 border-b pb-4">
         Quiz Time
@@ -58,6 +69,12 @@
                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm text-center">
             </div>
         </div>
+        <!-- Optional QR Code URL Input -->
+        <div>
+            <label for="qr-url" class="block text-sm font-medium text-gray-600 mb-1">QR Code URL (optional)</label>
+            <input type="text" id="qr-url" placeholder="Enter URL to generate QR code"
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
+        </div>
 
         <!-- Start Button -->
         <button id="start-button" onclick="startTimer()"
@@ -68,22 +85,25 @@
     </div>
 
     <!-- Timer Display (Hidden initially) -->
-    <div id="timer-section" class="hidden text-center space-y-8 p-4">
+    <div id="timer-section" class="hidden text-center space-y-4 p-3">
         
         <!-- Current Quiz Name -->
         <h2 id="display-quiz-name" class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight"></h2>
 
         <!-- Main Time Display -->
-        <div class="p-6 bg-indigo-50 rounded-2xl shadow-inner border border-indigo-200">
-            <p class="text-lg text-indigo-700 mb-2">Time Remaining</p>
-            <p id="time-display" class="text-7xl md:text-8xl font-mono font-bold text-indigo-800">00:00</p>
+        <div class="p-4 bg-indigo-50 rounded-2xl shadow-inner border border-indigo-200">
+            <p class="text-md text-indigo-700 mb-1">Time Remaining</p>
+            <p id="time-display" class="text-5xl md:text-6xl font-mono font-bold text-indigo-800">00:00</p>
         </div>
 
         <!-- Progress Bar Container -->
         <div class="w-full bg-gray-200 rounded-full h-4 shadow-inner overflow-hidden">
             <div id="progress-bar" class="progress-bar h-4 rounded-full bg-green-500" style="width: 100%;"></div>
         </div>
-        <!-- Removed percentage display text element -->
+        <!-- QR Code Display (hidden by default) -->
+        <div id="qr-code-container" class="mt-4 hidden flex justify-center">
+            <div id="qr-code-canvas"></div>
+        </div>
 
         <!-- Reset Button -->
         <button id="reset-button" onclick="resetTimer()"
@@ -154,6 +174,7 @@
         const name = document.getElementById('quiz-name').value.trim() || 'Untitled Quiz';
         const minutes = parseInt(document.getElementById('minutes').value) || 0;
         const seconds = parseInt(document.getElementById('seconds').value) || 0;
+        const qrUrl = document.getElementById('qr-url').value.trim();
 
         totalTimeSeconds = (minutes * 60) + seconds;
 
@@ -170,7 +191,23 @@
         setupSection.classList.add('hidden');
         timerSection.classList.remove('hidden');
 
-        // 3. Start Interval
+        // 3. Generate QR Code if URL provided
+        const qrContainer = document.getElementById('qr-code-container');
+        const qrCanvas = document.getElementById('qr-code-canvas');
+        qrContainer.classList.add('hidden');
+        qrCanvas.innerHTML = '';
+        if (qrUrl) {
+            // QRCode.js will create a <canvas> or <img> inside the target element
+            new QRCode(qrCanvas, {
+                text: qrUrl,
+                width: 200,
+                height: 200,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            qrContainer.classList.remove('hidden');
+        }
+
+        // 4. Start Interval
         updateTimerDisplay(); // Initial display update
         timerInterval = setInterval(updateTimer, 1000);
     }
@@ -241,7 +278,11 @@
         progressBar.style.width = '100%';
         progressBar.classList.remove('bg-yellow-500', 'bg-red-500');
         progressBar.classList.add('bg-green-500');
-        // Removed percentageText reset
+        // Clear QR code if displayed
+        const qrContainer = document.getElementById('qr-code-container');
+        const qrCanvas = document.getElementById('qr-code-canvas');
+        qrCanvas.innerHTML = '';
+        qrContainer.classList.add('hidden');
 
         // Switch View
         timerSection.classList.add('hidden');
