@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Page</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #ff00ff, #00ffff);
+            animation: bgGradient 10s infinite alternate;
+            overflow: hidden;
+        }
+        
+        @keyframes bgGradient {
+            0% { background: linear-gradient(135deg, #ff00ff, #00ffff); }
+            25% { background: linear-gradient(135deg, #ffff00, #00ff00); }
+            50% { background: linear-gradient(135deg, #00ff00, #0000ff); }
+            75% { background: linear-gradient(135deg, #ff0000, #ffff00); }
+            100% { background: linear-gradient(135deg, #ff00ff, #00ffff); }
+        }
+        
+        .container {
+            text-align: center;
+            padding: 2rem;
+            border: 5px ridge #ff00ff;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 20px #ff00ff, 0 0 40px #00ffff;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        h1 {
+            color: #ff00ff;
+            text-shadow: 3px 3px 0 #00ffff;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        p {
+            color: #000000;
+            font-size: 1.3rem;
+            margin: 1rem 0;
+        }
+        
+        .version {
+            font-size: 1.5rem;
+            color: #00ff00;
+            margin: 1rem 0;
+            text-shadow: 2px 2px 0 #ff0000;
+            animation: colorShift 3s infinite;
+        }
+        
+        @keyframes colorShift {
+            0% { color: #00ff00; }
+            25% { color: #ffff00; }
+            50% { color: #0000ff; }
+            75% { color: #ff00ff; }
+            100% { color: #00ff00; }
+        }
+        
+        .signature {
+            margin-top: 2rem;
+            font-style: italic;
+            color: #0000ff;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #ffffff;
+            animation: slideIn 1s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 1990s style blinking text */
+        .blinking {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        /* Floating elements */
+        .floating {
+            position: absolute;
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .float1 { top: 10%; left: 10%; animation-delay: 0s; }
+        .float2 { top: 20%; right: 15%; animation-delay: 1s; }
+        .float3 { bottom: 15%; left: 20%; animation-delay: 2s; }
+        .float4 { bottom: 25%; right: 10%; animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Our Application</h1>
+        <p>The application is <span class="blinking">hosted successfully!</span></p>
+        <div class="version">Version: V1.1.1</div>
+        <div class="signature">Managed by Shubham Dalvi</div>
+    </div>
+    
+    <!-- Floating 1990s elements -->
+    <div class="floating float1">★</div>
+    <div class="floating float2">☀</div>
+    <div class="floating float3">☂</div>
+    <div class="floating float4">✦</div>
+</body>
+</html>
