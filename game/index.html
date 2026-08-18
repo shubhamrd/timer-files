@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falling Objects Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="gameInfo">
+            <div id="score">Score: 0</div>
+            <div id="lives">Lives: 3</div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="gameOver" class="hidden">
+            <h2>Game Over!</h2>
+            <p id="finalScoreMessage">Your score: <span id="finalScore">0</span></p>
+            <p>Well played! 👍</p>
+            <button id="restartButton">Play Again</button>
+        </div>
+        <div id="startScreen">
+            <h2>Falling Objects Game</h2>
+            <p id="welcomeMessage">Welcome to the game!</p>
+            <p>🎯 Catch the falling objects to earn points!</p>
+            <p>🎮 Controls:</p>
+            <p>• Arrow Keys or A/D to move</p>
+            <p>• Mouse click and drag to move</p>
+            <p>• Touch screen support</p>
+            <div id="playerNameInput">
+                <label for="userName">Enter Your Name:</label>
+                <input type="text" id="userName" placeholder="Your name here">
+                <button id="setNameButton">Set Name & Start</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

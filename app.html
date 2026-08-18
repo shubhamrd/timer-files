@@ -119,6 +119,22 @@
         .float2 { top: 20%; right: 15%; animation-delay: 1s; }
         .float3 { bottom: 15%; left: 20%; animation-delay: 2s; }
         .float4 { bottom: 25%; right: 10%; animation-delay: 0.5s; }
+        
+        .game-link {
+            display: block;
+            margin-top: 2rem;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .game-link:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -127,6 +143,8 @@
         <p>The application is <span class="blinking">hosted successfully!</span></p>
         <div class="version">Version: V1.1.1</div>
         <div class="signature">Managed by Shubham Dalvi</div>
+        <a href="task-manager.html" class="game-link">📋 Task Manager</a>
+        <a href="game/index.html" class="game-link">🎮 Play Our New Game!</a>
     </div>
     
     <!-- Floating 1990s elements -->
